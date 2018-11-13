@@ -1,7 +1,7 @@
 ---
 title: "Community Contribution"
 author: 'Hrishikesh Telang(hnt2107)'
-output: html_document
+output: output: rmarkdown::github_document
 ---
 
 ```{r setup, include=FALSE}
