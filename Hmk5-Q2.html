@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Hmk5 Q2</title>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+
+	</head>
+	<style>
+        .click-circle {
+
+    		fill: red;
+		}
+		.plot{
+			background-color:rgb(218, 238, 245);
+			width: 600px;
+    		height: 400px;
+		}
+    </style>
+	<body>
+		
+	  <h3>Click anywhere to add a point.</h3>
+	  
+	  
+		<script type="text/javascript">
+
+			//Width and height of svg
+			var w = 600;
+			var h = 400;
+			var padding = 30;
+			
+			// axis min / max
+			var xmin = -50;
+			var xmax = 50;
+			var ymin = -30;
+			var ymax = 30;
+		  
+		
+
+			var svg = d3.select("body")
+                .append("svg")
+                .attr("width", w)
+                .attr("height", h);
+
+
+			var scale1 = d3.scaleLinear()
+						.domain([xmin, xmax])
+						.range([0, w - 100]);
+			var scale2 = d3.scaleLinear()
+						.domain([ymax, ymin])
+						.range([0, h+100]);
+
+			var x_axis = d3.axisBottom()
+						.scale(scale1);
+			var y_axis = d3.axisLeft()
+						.scale(scale2);
+
+
+			svg.append("g")
+			.attr("transform", "translate(50, 200)")
+			.call(x_axis);
+			
+			svg.append("g")
+       			.attr("transform", "translate(300, -50)")
+       			.call(y_axis);
+		
+			var svg = d3.select('svg');			
+
+			function drawCircle(x, y, size) {
+				svg.append("circle")
+					.attr('class', 'click-circle')
+					.attr("cx", x)
+					.attr("cy", y)
+					.attr("r", size);
+			}
+			
+			svg.on('click', function() {
+				var coords = d3.mouse(this);
+				console.log(coords);
+				drawCircle(coords[0], coords[1], 5);
+				
+				document.getElementById("output1").innerHTML = ("New point added at:  "+Number(scale1.invert(d3.mouse(this)[0] - 50).toFixed(2))+",  "+Number((scale2.invert(d3.mouse(this)[1] + 50).toFixed(2))));
+			})
+			
+
+			
+
+		</script>
+		<h3><div id="output1"></div></h3>
+		<div id="output2"></div>
+	</body>
+</html>

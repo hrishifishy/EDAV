@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Hmk5 Q5</title>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+
+	</head>
+	<style>
+        .click-circle {
+
+    		fill: red;
+		}
+		.plot{
+			background-color:rgb(218, 238, 245);
+			width: 600px;
+    		height: 400px;
+		}
+    </style>
+	<body>
+
+    <div style="width: 600px">
+		
+	  <h3>Correlation Coefficient</h3>
+	  
+	  <p>TThe correlation coefficient (r) is a measure of the linear relationship
+		between two variables x and y. To get a sense of the connection between the
+		appearance of points -- (x,y) pairs --  in a scatterplot and the value of r,
+		click anywhere on the graph to add points. To remove points, click the Remove 
+		Points button and then mouseover points. The correlation coefficient is shown below.</p>
+	  
+	  </div>
+	  
+	  <input type="radio" id="myRadio" name="1" onclick="a()"/><text>Add Points</text>
+	  <input type="radio" id="myRadio2" name="1" onclick="doSomething()"/><text>Remove Points</text>
+	
+		<h3 id="cc"></h3>
+		<div id="output1"></div>
+	  
+		<script type="text/javascript">
+
+			//Width and height of svg
+			var w = 600;
+			var h = 400;
+			var padding = 30;
+			
+			// axis min / max
+			var xmin = -50;
+			var xmax = 50;
+			var ymin = -30;
+			var ymax = 30;
+		  
+		
+			
+			var svg = d3.select("body")
+                .append("svg")
+                .attr("width", w)
+                .attr("height", h);
+
+			var scale1 = d3.scaleLinear()
+						.domain([xmin, xmax])
+						.range([0, w - 100]);
+			var scale2 = d3.scaleLinear()
+						.domain([ymax, ymin])
+						.range([0, h+100]);
+
+    
+			var x_axis = d3.axisBottom()
+						.scale(scale1);
+			var y_axis = d3.axisLeft()
+						.scale(scale2);
+
+			
+			svg.append("g")
+			.attr("transform", "translate(50, 200)")
+			.call(x_axis);
+			
+			svg.append("g")
+       			.attr("transform", "translate(300, -50)")
+       			.call(y_axis);
+
+					
+			var svg1 = d3.select('svg');			
+				
+			function drawCircle(x, y, size) {
+				svg1.append("circle")
+					.attr('class', 'click-circle')
+					.attr("cx", x)
+					.attr("cy", y)
+					.attr("r", size);
+			}
+			
+			var xco=[]
+			var yco=[]
+
+			
+			
+			function a(){	
+				
+				var xminusmean=[];
+				var yminusmean=[];
+
+				
+
+				var numer=[]
+				var denom1=[]
+				var denom2=[]
+				var denom=[]
+				
+
+				svg1.on('click', function() {
+				var coords = d3.mouse(this);
+				
+				drawCircle(coords[0], coords[1], 5);
+				
+				xco.push(scale1.invert(coords[0] - 50))
+				yco.push(scale2.invert(coords[1] +50))
+
+				
+
+				var xsum = d3.sum(xco, function(d) { return d; });
+				var xmean= xsum/xco.length
+				
+				var ysum = d3.sum(yco, function(d) { return d; });
+				var ymean= ysum/yco.length
+
+				for(var i = 0; i < xco.length; i++) {
+					xminusmean.push(xco[i] - xmean);
+				}
+
+				for(var i = 0; i < yco.length; i++) {
+					yminusmean.push(yco[i] - ymean);
+				}
+
+				for(var i = 0; i < xminusmean.length; i++) {
+					numer.push(xminusmean[i]*yminusmean[i]);
+				}
+				
+				var numersum = d3.sum(numer, function(d) { return d; });
+
+				for(var i = 0; i < xminusmean.length; i++) {
+					denom1.push(xminusmean[i]*xminusmean[i]);
+				}
+
+				for(var i = 0; i < yminusmean.length; i++) {
+					denom2.push(yminusmean[i]*yminusmean[i]);
+				}
+
+				var denom1sum = d3.sum(denom1, function(d) { return d; });
+				var denom2sum = d3.sum(denom2, function(d) { return d; });
+
+				var denom=Math.sqrt(denom1sum*denom2sum)
+
+				var r=numersum/denom
+				
+				if (xco.length< 2) {
+					document.getElementById("cc").innerHTML="Two points are needed to calculate r"
+				}
+				else{
+					document.getElementById("cc").innerHTML =("r:  "+Number(r).toFixed(2));
+				}
+				
+			})
+
+		}
+			
+			
+			function doSomething(){
+				svg.selectAll("circle")
+				.on('mouseover', removeElement)
+			}
+
+			function removeElement(d){
+				
+				var x= scale1.invert(d3.mouse(this)[0]-50)
+				spl(x)
+				d3.select(this)
+				.remove()
+				
+			}
+			
+			function spl(d){
+				var index
+				var minx=999
+				
+				for(var i = 0; i < xco.length; i++) {
+					
+					var min1
+					min1=xco[i]-d
+					min1=Math.abs(min1)
+					if (min1<minx){
+						index = i;
+						minx=min1
+						
+					}
+				}
+				
+				xco.splice(index, 1);
+				yco.splice(index, 1);
+				update()
+			}
+				
+				
+					
+
+		
+			function update(){
+				var xsum = d3.sum(xco, function(d) { return d; });
+				var xmean= xsum/xco.length
+				
+				var ysum = d3.sum(yco, function(d) { return d; });
+				var ymean= ysum/yco.length
+
+				var xminusmean = [];
+				var yminusmean=[];
+
+				var numer=[]
+				var denom1=[]
+				var denom2=[]
+				var denom=[]
+
+				for(var i = 0; i < xco.length; i++) {
+					xminusmean.push(xco[i] - xmean);
+				}
+
+				for(var i = 0; i < yco.length; i++) {
+					yminusmean.push(yco[i] - ymean);
+				}
+
+				for(var i = 0; i < xminusmean.length; i++) {
+					numer.push(xminusmean[i]*yminusmean[i]);
+				}
+				
+				var numersum = d3.sum(numer, function(d) { return d; });
+
+				for(var i = 0; i < xminusmean.length; i++) {
+					denom1.push(xminusmean[i]*xminusmean[i]);
+				}
+
+				for(var i = 0; i < yminusmean.length; i++) {
+					denom2.push(yminusmean[i]*yminusmean[i]);
+				}
+
+				var denom1sum = d3.sum(denom1, function(d) { return d; });
+				var denom2sum = d3.sum(denom2, function(d) { return d; });
+
+				var denom=Math.sqrt(denom1sum*denom2sum)
+
+				var r=numersum/denom
+				
+				if (xco.length< 2) {
+					document.getElementById("cc").innerHTML="Two points are needed to calculate r"
+				}else{
+					document.getElementById("cc").innerHTML =("r:  "+Number(r).toFixed(2));
+				}
+
+				
+			}
+
+				
+			
+				
+			
+			
+
+
+		</script>
+		
+		<div id="output2"></div>
+	</body>
+</html>
